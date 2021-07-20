@@ -5,7 +5,7 @@ android {
     buildToolsVersion "28.0.2"
 
     defaultConfig {
-        applicationId "com.maniu.openglfilter"
+        applicationId "com.nolovr.core.openglfilter"
         minSdkVersion 23
         targetSdkVersion 28
         versionCode 1

@@ -1,4 +1,4 @@
-package com.maniu.openglfilter;
+package com.nolovr.core.openglfilter;
 
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -11,13 +11,14 @@ import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.RadioGroup;
 
-import com.maniu.openglfilter.widget.RecordButton;
+import com.nnolovr.core.openglfilter.R;
+import com.nolovr.core.openglfilter.widget.RecordButton;
 
 
 public class MainActivity extends AppCompatActivity implements RecordButton.OnRecordListener, RadioGroup.OnCheckedChangeListener {
 
-    private static final String TAG = "MainActivity";
-    private CameraView cameraView;
+    private static final String                           TAG = "MainActivity";
+    private              CameraView cameraView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

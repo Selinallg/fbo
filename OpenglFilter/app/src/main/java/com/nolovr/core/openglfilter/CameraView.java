@@ -1,11 +1,14 @@
-package com.maniu.openglfilter;
+package com.nolovr.core.openglfilter;
 
 import android.content.Context;
 import android.opengl.GLSurfaceView;
 import android.util.AttributeSet;
+
+import com.nolovr.core.openglfilter.CameraRender;
+
 //GLSurfaceView   glthread  线程     gl 传参  gpu       主线程
 public class CameraView extends GLSurfaceView {
-    private  CameraRender renderer;
+    private CameraRender renderer;
     public CameraView(Context context) {
         super(context);
     }

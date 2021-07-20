@@ -1,4 +1,4 @@
-package com.maniu.openglfilter.widget;
+package com.nolovr.core.openglfilter.widget;
 
 import android.content.Context;
 import android.util.AttributeSet;

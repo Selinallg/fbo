@@ -1,4 +1,4 @@
-package com.maniu.openglfilter;
+package com.nolovr.core.openglfilter;
 
 import android.content.Context;
 import android.opengl.GLES20;

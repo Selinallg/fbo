@@ -1,6 +1,8 @@
-package com.maniu.openglfilter;
+package com.nolovr.core.openglfilter;
 
 import android.content.Context;
+
+import com.nnolovr.core.openglfilter.R;
 
 public class ScreenFilter extends AbstractFilter {
     public ScreenFilter(Context context) {

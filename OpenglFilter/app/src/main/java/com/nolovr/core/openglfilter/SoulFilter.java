@@ -1,7 +1,9 @@
-package com.maniu.openglfilter;
+package com.nolovr.core.openglfilter;
 
 import android.content.Context;
 import android.opengl.GLES20;
+
+import com.nnolovr.core.openglfilter.R;
 
 public class SoulFilter extends AbstractFboFilter {
     private int scalePercent;

@@ -1,7 +1,9 @@
-package com.maniu.openglfilter;
+package com.nolovr.core.openglfilter;
 
 import android.content.Context;
 import android.opengl.GLES20;
+
+import com.nolovr.core.openglfilter.OpenGLUtils;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
