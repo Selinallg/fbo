@@ -10,8 +10,6 @@ import android.util.Log;
 import androidx.camera.core.Preview;
 import androidx.lifecycle.LifecycleOwner;
 
-import com.nolovr.core.openglfilter.BeautyFilter;
-
 import java.io.File;
 import java.io.IOException;
 
@@ -24,9 +22,9 @@ public class CameraRender implements GLSurfaceView.Renderer, Preview.OnPreviewOu
     private CameraView   cameraView;
     private SurfaceTexture                     mCameraTexure;
     RecordFilter recordFilter;
-    private MediaRecorder                      mRecorder;
+    private H264MediaRecorder mRecorder;
     //    int
-    private CameraFilter cameraFilter;
+    private CameraFilter      cameraFilter;
     private SoulFilter soulFilter;
     private BeautyFilter                     beautyFilter;
     //    private SplitFilter splitFilter;
@@ -63,7 +61,7 @@ public class CameraRender implements GLSurfaceView.Renderer, Preview.OnPreviewOu
         }
 
         String path = file.getAbsolutePath();
-        mRecorder = new MediaRecorder(cameraView.getContext(), path,
+        mRecorder = new H264MediaRecorder(cameraView.getContext(), path,
                 EGL14.eglGetCurrentContext(),
                 480, 640);
 

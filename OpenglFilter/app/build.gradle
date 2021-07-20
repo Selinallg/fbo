@@ -5,7 +5,7 @@ android {
     buildToolsVersion "28.0.2"
 
     defaultConfig {
-        applicationId "com.nolovr.core.openglfilter"
+        applicationId "com.nolovr.core.streaming"
         minSdkVersion 23
         targetSdkVersion 28
         versionCode 1

@@ -13,7 +13,7 @@ import android.view.Surface;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 
-public class MediaRecorder1 {
+public class MuxerMediaRecorder {
     private MediaCodec mMediaCodec;
     private   int mWidth;
     private   int mHeight;
@@ -31,7 +31,7 @@ public class MediaRecorder1 {
     private int track;
     private float mSpeed;
 
-    public MediaRecorder1(Context context, String path, EGLContext glContext, int width, int
+    public MuxerMediaRecorder(Context context, String path, EGLContext glContext, int width, int
             height) {
         mContext = context.getApplicationContext();
         mPath = path;

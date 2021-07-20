@@ -13,8 +13,8 @@ import android.view.Surface;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 
-public class MediaRecorder {
-    private static final String TAG = "David";
+public class H264MediaRecorder {
+    private static final String TAG = "H264MediaRecorder";
     private MediaCodec mMediaCodec;
     private   int mWidth;
     private   int mHeight;
@@ -26,7 +26,7 @@ public class MediaRecorder {
     private boolean                      isStart;
     private   Context mContext;
     private long startTime;
-    public MediaRecorder(Context context, String path, EGLContext glContext, int width, int
+    public H264MediaRecorder(Context context, String path, EGLContext glContext, int width, int
             height) {
         mContext = context.getApplicationContext();
         mPath = path;
