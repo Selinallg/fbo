@@ -15,9 +15,11 @@ public class CameraView extends GLSurfaceView {
 
     public CameraView(Context context, AttributeSet attrs) {
         super(context, attrs);
+        App app = (App) context.getApplicationContext();
 //        2
         setEGLContextClientVersion(2);
         renderer = new CameraRender(this);
+        renderer.setMediaProjection(app.mediaProjection);
 //        opengl  有讲究
         setRenderer(renderer);
         /**

@@ -2,10 +2,14 @@ package com.nolovr.core.openglfilter;
 
 import android.content.Context;
 import android.graphics.SurfaceTexture;
+import android.hardware.display.DisplayManager;
+import android.hardware.display.VirtualDisplay;
+import android.media.projection.MediaProjection;
 import android.opengl.EGL14;
 import android.opengl.GLSurfaceView;
 import android.os.Environment;
 import android.util.Log;
+import android.view.Surface;
 
 import androidx.camera.core.Preview;
 import androidx.lifecycle.LifecycleOwner;
@@ -17,36 +21,76 @@ import javax.microedition.khronos.egl.EGLConfig;
 import javax.microedition.khronos.opengles.GL10;
 
 public class CameraRender implements GLSurfaceView.Renderer, Preview.OnPreviewOutputUpdateListener, SurfaceTexture.OnFrameAvailableListener {
-    private static final String                             TAG = "CameraRender";
-    private CameraHelper cameraHelper;
-    private CameraView   cameraView;
-    private SurfaceTexture                     mCameraTexure;
+    private static final String         TAG = "CameraRender";
+    private final App app;
+    private              CameraHelper   cameraHelper;
+    private              CameraView     cameraView;
+    private              SurfaceTexture mCameraTexure;
     RecordFilter recordFilter;
     private H264MediaRecorder mRecorder;
     //    int
     private CameraFilter      cameraFilter;
-    private SoulFilter soulFilter;
-    private BeautyFilter                     beautyFilter;
+    private SoulFilter        soulFilter;
+    private BeautyFilter      beautyFilter;
     //    private SplitFilter splitFilter;
-    private int[]                            textures;
+    private int[]             textures;
     float[] mtx = new float[16];
+
+    // mediaProjection 截屏
+    VirtualDisplay virtualDisplay;
+    private int width  = 720;
+    private int height = 1280;
+
+    public void setMediaProjection(MediaProjection mediaProjection) {
+        this.mediaProjection = mediaProjection;
+    }
+
+    MediaProjection mediaProjection =null;
 
     public CameraRender(CameraView cameraView) {
         this.cameraView = cameraView;
+        app = (App) cameraView.getContext().getApplicationContext();
         LifecycleOwner lifecycleOwner = (LifecycleOwner) cameraView.getContext();
 //        打开摄像头
-        cameraHelper = new CameraHelper(lifecycleOwner, this);
+        if (app.sence == app.senceCamera) {
+            cameraHelper = new CameraHelper(lifecycleOwner, this);
+        }
 
     }
 
     //textures 主线程    1   EGL线程
     @Override
     public void onSurfaceCreated(GL10 gl, EGLConfig config) {
+        Log.d(TAG, "onSurfaceCreated: ");
+
 //surface
-        textures = new int[1];
+        if (app.sence != app.senceCamera) {
+            if (mediaProjection==null){
+                Log.e(TAG, "onSurfaceCreated: mediaProjection==null");
+                return;
+            }
+            // ①手动创建一个Surface start ;
+            textures = new int[1];
+            int mTextureId = textures[0];
+            mCameraTexure = new SurfaceTexture(mTextureId);
+            Surface mSurface = new Surface(mCameraTexure);
+            // ①手动创建一个Surface end ;
+
+
+            //② mediaProjection
+            //创建场地
+            virtualDisplay = mediaProjection.createVirtualDisplay(
+                    "-display",
+                    width, height, 1,
+                    DisplayManager.VIRTUAL_DISPLAY_FLAG_PUBLIC, mSurface, null, null);
+        }else {
+            textures = new int[1];
+            mCameraTexure.attachToGLContext(textures[0]);
+        }
+
 //        1
 //        让 SurfaceTexture   与 Gpu  共享一个数据源  0-31
-        mCameraTexure.attachToGLContext(textures[0]);
+//        mCameraTexure.attachToGLContext(textures[0]);
 //监听摄像头数据回调，
         mCameraTexure.setOnFrameAvailableListener(this);
         cameraFilter = new CameraFilter(cameraView.getContext());
@@ -69,6 +113,7 @@ public class CameraRender implements GLSurfaceView.Renderer, Preview.OnPreviewOu
 
     @Override
     public void onSurfaceChanged(GL10 gl, int width, int height) {
+        Log.d(TAG, "onSurfaceChanged: ");
 //
         recordFilter.setSize(width, height);
         cameraFilter.setSize(width, height);
@@ -80,7 +125,7 @@ public class CameraRender implements GLSurfaceView.Renderer, Preview.OnPreviewOu
     //  有数据的时候给
     @Override
     public void onDrawFrame(GL10 gl) {
-        Log.i(TAG, "线程: " + Thread.currentThread().getName());
+//        Log.i(TAG, "线程: " + Thread.currentThread().getName());
 //        摄像头的数据  ---》
 //        更新摄像头的数据  给了  gpu
         mCameraTexure.updateTexImage();
@@ -115,6 +160,10 @@ public class CameraRender implements GLSurfaceView.Renderer, Preview.OnPreviewOu
     //
     @Override
     public void onUpdated(Preview.PreviewOutput output) {
+        Log.d(TAG, "onUpdated: ");
+        // TODO: 2021/7/21 很重要，纹理在这里获取
+        // Camera 的时候最先调用
+
 //        摄像头预览到的数据 在这里
         mCameraTexure = output.getSurfaceTexture();
     }
