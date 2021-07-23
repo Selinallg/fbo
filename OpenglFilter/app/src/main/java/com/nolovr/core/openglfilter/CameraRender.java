@@ -1,15 +1,21 @@
 package com.nolovr.core.openglfilter;
 
 import android.content.Context;
+import android.graphics.ImageFormat;
 import android.graphics.SurfaceTexture;
 import android.hardware.display.DisplayManager;
 import android.hardware.display.VirtualDisplay;
+import android.media.Image;
+import android.media.ImageReader;
 import android.media.projection.MediaProjection;
 import android.opengl.EGL14;
 import android.opengl.GLSurfaceView;
 import android.os.Environment;
+import android.os.Handler;
+import android.os.HandlerThread;
 import android.util.Log;
 import android.view.Surface;
+import android.view.TextureView;
 
 import androidx.camera.core.Preview;
 import androidx.lifecycle.LifecycleOwner;
@@ -72,15 +78,40 @@ public class CameraRender implements GLSurfaceView.Renderer, Preview.OnPreviewOu
             int mTextureId = textures[0];
             mCameraTexure = new SurfaceTexture(mTextureId);
             Surface mSurface = new Surface(mCameraTexure);
+
+
+//            TextureView mTextureView         = null;
+//            SurfaceTexture           texture =  mTextureView.getSurfaceTexture();
+//            Surface pSurface = new Surface(texture);
+//
+            ImageReader mImageReader = ImageReader.newInstance(App.width, App.height,
+                    ImageFormat.YUV_420_888, 2);
+            Surface pSurface = mImageReader.getSurface();
+
+
+            HandlerThread handlerThread = new HandlerThread("mImageReader-gl");
+            handlerThread.start();
+            Handler mHandler = new Handler(handlerThread.getLooper());
+
+            mImageReader.setOnImageAvailableListener(new OnImageAvailableListenerImpl(), mHandler);
+
             // ①手动创建一个Surface end ;
 
 
             //② mediaProjection
             //创建场地
+//            virtualDisplay = mediaProjection.createVirtualDisplay(
+//                    "-display",
+//                    App.width, App.height, 1,
+//                    DisplayManager.VIRTUAL_DISPLAY_FLAG_PUBLIC, mSurface, null, null);
+
             virtualDisplay = mediaProjection.createVirtualDisplay(
                     "-display",
                     App.width, App.height, 1,
-                    DisplayManager.VIRTUAL_DISPLAY_FLAG_PUBLIC, mSurface, null, null);
+                    DisplayManager.VIRTUAL_DISPLAY_FLAG_AUTO_MIRROR, mSurface, null, null);
+
+            mCameraTexure.detachFromGLContext();
+            mCameraTexure.attachToGLContext(textures[0]);
         } else {
             textures = new int[1];
             mCameraTexure.attachToGLContext(textures[0]);
@@ -91,7 +122,9 @@ public class CameraRender implements GLSurfaceView.Renderer, Preview.OnPreviewOu
 //        让 SurfaceTexture   与 Gpu  共享一个数据源  0-31
 //        mCameraTexure.attachToGLContext(textures[0]);
 //监听摄像头数据回调，
-        mCameraTexure.setOnFrameAvailableListener(this);
+        if (mCameraTexure != null) {
+            mCameraTexure.setOnFrameAvailableListener(this);
+        }
         Context context = cameraView.getContext();
         cameraFilter = new CameraFilter(context);
         recordFilter = new RecordFilter(context);
@@ -127,16 +160,18 @@ public class CameraRender implements GLSurfaceView.Renderer, Preview.OnPreviewOu
 //        Log.i(TAG, "线程: " + Thread.currentThread().getName());
 //        摄像头的数据  ---》
 //        更新摄像头的数据  给了  gpu
-        mCameraTexure.updateTexImage();
+        if (mCameraTexure != null) {
+            mCameraTexure.updateTexImage();
 //        不是数据
-        mCameraTexure.getTransformMatrix(mtx);
+            mCameraTexure.getTransformMatrix(mtx);
+        }
         cameraFilter.setTransformMatrix(mtx);
 //int   数据   byte[]
 
 
 //id     FBO所在的图层   纹理  摄像头 有画面      有1  没有  画面       录屏
         int id = cameraFilter.onDraw(textures[0]);
-        Log.d(TAG, "onDrawFrame: cameraFilter id=" + id + "|" + mCameraTexure.getTimestamp());
+//        Log.d(TAG, "onDrawFrame: cameraFilter id=" + id + "|" + mCameraTexure.getTimestamp());
 // 加载   新的顶点程序 和片元程序  显示屏幕  id  ----》fbo--》 像素详细
 //        显示到屏幕
 //        id =  soulFilter.onDraw(id);
@@ -210,6 +245,46 @@ public class CameraRender implements GLSurfaceView.Renderer, Preview.OnPreviewOu
             }
         });
 //        Opengl 线程  来做   fbo
+    }
+
+    private class OnImageAvailableListenerImpl implements ImageReader.OnImageAvailableListener {
+        private byte[] y;
+        private byte[] u;
+        private byte[] v;
+
+        //        摄像 回调应用层  onPreviewFrame(byte[] )  这里 拿哪里
+        @Override
+        public void onImageAvailable(ImageReader reader) {
+
+//            mCameraTexure = reader.getSurface();
+            Log.d(TAG, "onImageAvailable: " + Thread.currentThread().getName());
+//            不是设置回调了
+            Image image = reader.acquireNextImage();
+//            搞事情           image 内容转换成
+//           yuv  H264
+            Image.Plane[] planes = image.getPlanes();
+            // 重复使用同一批byte数组，减少gc频率
+            if (y == null) {
+//                new  了一次
+//                limit  是 缓冲区 所有的大小     position 起始大小
+                y = new byte[planes[0].getBuffer().limit() - planes[0].getBuffer().position()];
+                u = new byte[planes[1].getBuffer().limit() - planes[1].getBuffer().position()];
+                v = new byte[planes[2].getBuffer().limit() - planes[2].getBuffer().position()];
+            }
+            if (image.getPlanes()[0].getBuffer().remaining() == y.length) {
+//                分别填到 yuv
+
+                planes[0].getBuffer().get(y);
+                planes[1].getBuffer().get(u);
+                planes[2].getBuffer().get(v);
+//                yuv 420
+            }
+//            if(camera2Listener!=null){
+//                camera2Listener.onPreview(y, u, v, mPreviewSize, planes[0].getRowStride());
+//            }
+//良性循环
+            image.close();
+        }
     }
 
 }
