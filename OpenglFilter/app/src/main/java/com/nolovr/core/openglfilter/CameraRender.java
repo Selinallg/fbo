@@ -86,6 +86,7 @@ public class CameraRender implements GLSurfaceView.Renderer, Preview.OnPreviewOu
             mCameraTexure.attachToGLContext(textures[0]);
         }
 
+
 //        1
 //        让 SurfaceTexture   与 Gpu  共享一个数据源  0-31
 //        mCameraTexure.attachToGLContext(textures[0]);
@@ -135,7 +136,7 @@ public class CameraRender implements GLSurfaceView.Renderer, Preview.OnPreviewOu
 
 //id     FBO所在的图层   纹理  摄像头 有画面      有1  没有  画面       录屏
         int id = cameraFilter.onDraw(textures[0]);
-        Log.d(TAG, "onDrawFrame: id=" + id + "|" + mCameraTexure.getTimestamp());
+        Log.d(TAG, "onDrawFrame: cameraFilter id=" + id + "|" + mCameraTexure.getTimestamp());
 // 加载   新的顶点程序 和片元程序  显示屏幕  id  ----》fbo--》 像素详细
 //        显示到屏幕
 //        id =  soulFilter.onDraw(id);
@@ -154,6 +155,7 @@ public class CameraRender implements GLSurfaceView.Renderer, Preview.OnPreviewOu
 //        起点
 //           起点数据  主动调用   opengl的函数  录制
         mRecorder.fireFrame(id, mCameraTexure.getTimestamp());
+        Log.d(TAG, "onDrawFrame: fireFrame id=" + id);
     }
 
     //
@@ -171,7 +173,6 @@ public class CameraRender implements GLSurfaceView.Renderer, Preview.OnPreviewOu
     @Override
     public void onFrameAvailable(SurfaceTexture surfaceTexture) {
         Log.d(TAG, "onFrameAvailable: " + surfaceTexture);
-        // surfaceTexture.updateTexImage();
 //一帧 一帧回调时
         cameraView.requestRender();
     }

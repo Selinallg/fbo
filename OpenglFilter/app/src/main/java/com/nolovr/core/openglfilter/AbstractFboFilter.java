@@ -101,7 +101,7 @@ public class AbstractFboFilter extends AbstractFilter {
     public int onDraw(int texture) {
 //        数据渲染到  fbo中  屏幕 1   不是  2  输出设备 就是fbo
         if (frameBuffer != null) {
-
+            Log.d(TAG, "onDraw: exec onDraw==>"+texture);
             GLES20.glBindFramebuffer(GLES20.GL_FRAMEBUFFER, frameBuffer[0]);
             super.onDraw(texture);
             GLES20.glBindFramebuffer(GLES20.GL_FRAMEBUFFER, 0);  //

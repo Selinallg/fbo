@@ -22,6 +22,7 @@ public class CameraView extends GLSurfaceView {
         renderer.setMediaProjection(app.mediaProjection);
 //        opengl  有讲究
         setRenderer(renderer);
+
         /**
          * 刷新方式：
          *     RENDERMODE_WHEN_DIRTY 手动刷新，調用requestRender();
