@@ -2,6 +2,7 @@ package com.nolovr.core.openglfilter;
 
 import android.content.Context;
 import android.opengl.GLES20;
+import android.util.Log;
 
 import com.nolovr.core.openglfilter.OpenGLUtils;
 
@@ -13,6 +14,7 @@ import static android.opengl.GLES20.GL_FLOAT;
 import static android.opengl.GLES20.GL_TEXTURE0;
 
 public class AbstractFilter {
+    private static final String TAG = "AbstractFilter";
     //    顶点着色器
 //    片元着色器
     public int program;
@@ -115,6 +117,7 @@ public class AbstractFilter {
         return texture;
     }
     public void beforeDraw() {
+        Log.d(TAG, "beforeDraw: "+this.getClass().getSimpleName());
     }
     public void release(){
         GLES20.glDeleteProgram(program);

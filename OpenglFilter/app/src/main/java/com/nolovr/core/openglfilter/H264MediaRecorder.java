@@ -26,8 +26,7 @@ public class H264MediaRecorder {
     private boolean                      isStart;
     private   Context mContext;
     private long startTime;
-    public H264MediaRecorder(Context context, String path, EGLContext glContext, int width, int
-            height) {
+    public H264MediaRecorder(Context context, String path, EGLContext glContext, int width, int height) {
         mContext = context.getApplicationContext();
         mPath = path;
         mWidth = width;
@@ -102,7 +101,7 @@ public class H264MediaRecorder {
         }
             MediaCodec.BufferInfo bufferInfo = new MediaCodec.BufferInfo();
             int index = mMediaCodec.dequeueOutputBuffer(bufferInfo, 10_000);
-            Log.i(TAG, "run: " + index);
+            Log.i(TAG, "run: " + index +"|"+bufferInfo.size);
             if (index >= 0) {
                 ByteBuffer buffer = mMediaCodec.getOutputBuffer(index);
                 MediaFormat mediaFormat = mMediaCodec.getOutputFormat(index);

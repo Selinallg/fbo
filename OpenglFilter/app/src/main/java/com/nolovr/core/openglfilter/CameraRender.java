@@ -21,31 +21,29 @@ import javax.microedition.khronos.egl.EGLConfig;
 import javax.microedition.khronos.opengles.GL10;
 
 public class CameraRender implements GLSurfaceView.Renderer, Preview.OnPreviewOutputUpdateListener, SurfaceTexture.OnFrameAvailableListener {
-    private static final String         TAG = "CameraRender";
-    private final App app;
-    private              CameraHelper   cameraHelper;
-    private              CameraView     cameraView;
-    private              SurfaceTexture mCameraTexure;
-    RecordFilter recordFilter;
-    private H264MediaRecorder mRecorder;
+    private static final String            TAG = "CameraRender";
+    private final        App               app;
+    private              CameraHelper      cameraHelper;
+    private              CameraView        cameraView;
+    private              SurfaceTexture    mCameraTexure;
+    private              H264MediaRecorder mRecorder;
     //    int
-    private CameraFilter      cameraFilter;
-    private SoulFilter        soulFilter;
-    private BeautyFilter      beautyFilter;
+    private              CameraFilter      cameraFilter;
+    private              SoulFilter        soulFilter;
+    private              BeautyFilter      beautyFilter;
+    private              RecordFilter      recordFilter;
     //    private SplitFilter splitFilter;
-    private int[]             textures;
+    private              int[]             textures;
     float[] mtx = new float[16];
 
     // mediaProjection 截屏
-    VirtualDisplay virtualDisplay;
-    private int width  = 720;
-    private int height = 1280;
+    VirtualDisplay  virtualDisplay;
+    MediaProjection mediaProjection = null;
 
     public void setMediaProjection(MediaProjection mediaProjection) {
         this.mediaProjection = mediaProjection;
     }
 
-    MediaProjection mediaProjection =null;
 
     public CameraRender(CameraView cameraView) {
         this.cameraView = cameraView;
@@ -65,7 +63,7 @@ public class CameraRender implements GLSurfaceView.Renderer, Preview.OnPreviewOu
 
 //surface
         if (app.sence != app.senceCamera) {
-            if (mediaProjection==null){
+            if (mediaProjection == null) {
                 Log.e(TAG, "onSurfaceCreated: mediaProjection==null");
                 return;
             }
@@ -81,9 +79,9 @@ public class CameraRender implements GLSurfaceView.Renderer, Preview.OnPreviewOu
             //创建场地
             virtualDisplay = mediaProjection.createVirtualDisplay(
                     "-display",
-                    width, height, 1,
+                    App.width, App.height, 1,
                     DisplayManager.VIRTUAL_DISPLAY_FLAG_PUBLIC, mSurface, null, null);
-        }else {
+        } else {
             textures = new int[1];
             mCameraTexure.attachToGLContext(textures[0]);
         }
@@ -93,8 +91,8 @@ public class CameraRender implements GLSurfaceView.Renderer, Preview.OnPreviewOu
 //        mCameraTexure.attachToGLContext(textures[0]);
 //监听摄像头数据回调，
         mCameraTexure.setOnFrameAvailableListener(this);
-        cameraFilter = new CameraFilter(cameraView.getContext());
         Context context = cameraView.getContext();
+        cameraFilter = new CameraFilter(context);
         recordFilter = new RecordFilter(context);
 //        beautyFilter = new BeautyFilter(context);
 //        soulFilter = new SoulFilter(context);
@@ -107,7 +105,7 @@ public class CameraRender implements GLSurfaceView.Renderer, Preview.OnPreviewOu
         String path = file.getAbsolutePath();
         mRecorder = new H264MediaRecorder(cameraView.getContext(), path,
                 EGL14.eglGetCurrentContext(),
-                480, 640);
+                App.width, App.height);
 
     }
 
@@ -137,6 +135,7 @@ public class CameraRender implements GLSurfaceView.Renderer, Preview.OnPreviewOu
 
 //id     FBO所在的图层   纹理  摄像头 有画面      有1  没有  画面       录屏
         int id = cameraFilter.onDraw(textures[0]);
+        Log.d(TAG, "onDrawFrame: id=" + id + "|" + mCameraTexure.getTimestamp());
 // 加载   新的顶点程序 和片元程序  显示屏幕  id  ----》fbo--》 像素详细
 //        显示到屏幕
 //        id =  soulFilter.onDraw(id);
@@ -171,6 +170,8 @@ public class CameraRender implements GLSurfaceView.Renderer, Preview.OnPreviewOu
     //当有数据 过来的时候
     @Override
     public void onFrameAvailable(SurfaceTexture surfaceTexture) {
+        Log.d(TAG, "onFrameAvailable: " + surfaceTexture);
+        // surfaceTexture.updateTexImage();
 //一帧 一帧回调时
         cameraView.requestRender();
     }

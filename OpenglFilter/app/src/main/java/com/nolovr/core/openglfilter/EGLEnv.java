@@ -7,11 +7,13 @@ import android.opengl.EGLContext;
 import android.opengl.EGLDisplay;
 import android.opengl.EGLExt;
 import android.opengl.EGLSurface;
+import android.util.Log;
 import android.view.Surface;
 
 import com.nolovr.core.openglfilter.ScreenFilter;
 
 public class EGLEnv {
+    private static final String TAG = "EGLEnv";
     private EGLDisplay mEglDisplay;
 //    调用 oepngl 的函数
     private   EGLContext mEglContext;
@@ -90,9 +92,11 @@ public class EGLEnv {
         }
         screenFilter = new ScreenFilter(context);
         screenFilter.setSize(width,height);
+        Log.d(TAG, "EGLEnv: sucess");
 
     }
     public void draw(int textureId, long timestamp) {
+        Log.d(TAG, "draw: ");
         screenFilter.onDraw(textureId);
 //           给帧缓冲   时间戳
         EGLExt.eglPresentationTimeANDROID(mEglDisplay,mEglSurface,timestamp);
